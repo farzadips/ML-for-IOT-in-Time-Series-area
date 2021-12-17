@@ -111,7 +111,7 @@ if(args.version == 'a'):
     keras.layers.Dense(1)
     ])
 
-elif(args.version == 'b'):
+if(args.version == 'b'):
     output_width = 9
 
     #mlp model:
