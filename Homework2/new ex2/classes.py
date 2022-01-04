@@ -274,15 +274,15 @@ class model_analysis():
             if (predict == label):                                         # if probability == labesl increase the correct predictions counter 
                 count += 1
         # Compute the Accuracy         
-        accuracy = count/total 
+        accuracy = count/total*100
         # Evaluate the size of Tflite model 
-        size = self.getsize(path)
+        size = self.getsize(path)/1000
         # Evaluate the size of Tflite model  after Comperession 
-        size_compressed = self.getsize(Compressed)
-        print ("*"*50,"\n",f"The Size of TF lite model  Before compression is = {size /1000 } kb" )
-        print ("*"*50,"\n",f"The Size of TF lite model  After compression is = {size_compressed /1000 } kb" )
-        print ("*"*50,"\n",f"The accuracy of TF lite model is = {accuracy *100 :0.2f} " )
-
+        size_compressed = self.getsize(Compressed)/1000
+        print ("*"*50,"\n",f"The Size of TF lite model  Before compression is = {size} kb" )
+        print ("*"*50,"\n",f"The Size of TF lite model  After compression is = {size_compressed} kb" )
+        print ("*"*50,"\n",f"The accuracy of TF lite model is = {accuracy:0.2f} " )
+        return accuracy, size_compressed 
 
         # Function for weight and activations quantization 
     def representative_dataset_gen(self):
@@ -291,7 +291,7 @@ class model_analysis():
 
 
 
-    def apply_Quantization(self, tflite_model_dir, PQT, WAPQT): 
+    def apply_Quantization(self, tflite_model_dir, PQT = False, WAPQT = False): 
 
         converter = tf.lite.TFLiteConverter.from_saved_model(self.checkpoint_filepath)
         
@@ -305,7 +305,7 @@ class model_analysis():
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
             converter.representative_dataset = self.representative_dataset_gen()
             tflite_model = converter.convert()
-            
+        
             tflite_model_dir = f"WAPQT_{tflite_model_dir}"
         Compressed =  f"compressed_{tflite_model_dir}"
         tflite_model_dir =   f"./models/{tflite_model_dir}"
@@ -319,6 +319,85 @@ class model_analysis():
         print(f"the model is saved successfuly to {tflite_model_dir}")
         return Compressed , tflite_model_dir 
 
+
+class latency():
+    def __init__(self):
+        pass
+
+    def calculate(self, model, rate = 16000, mfcc = False, resize = 32, length = 640, stride = 320, num_mel_bins = 40, lower_frequency = 20, upper_frequency = 4000, num_coefficients = 10):
+        import tensorflow as tf
+        import time
+        from scipy import signal
+        import numpy as np
+        from subprocess import call
+
+
+        num_frames = (rate - length) // stride + 1
+        num_spectrogram_bins = length // 2 + 1
+
+        linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
+                num_mel_bins, num_spectrogram_bins, rate, lower_frequency,
+                upper_frequency)
+
+        if model is not None:
+            interpreter = tf.lite.Interpreter(model_path = model)
+            interpreter.allocate_tensors()
+
+            input_details = interpreter.get_input_details()
+            output_details = interpreter.get_output_details()
+
+
+        inf_latency = []
+        tot_latency = []
+        for i in range(100):
+            sample = np.array(np.random.random_sample(48000), dtype=np.float32)
+
+            start = time.time()
+
+            # Resampling
+            sample = signal.resample_poly(sample, 1, 48000 // rate)
+
+            sample = tf.convert_to_tensor(sample, dtype=tf.float32)
+
+            # STFT
+            stft = tf.signal.stft(sample, length, stride,
+                    fft_length=length)
+            spectrogram = tf.abs(stft)
+
+            if mfcc is False and resize > 0:
+                # Resize (optional)
+                spectrogram = tf.reshape(spectrogram, [1, num_frames, num_spectrogram_bins, 1])
+                spectrogram = tf.image.resize(spectrogram, [resize, resize])
+                input_tensor = spectrogram
+            else:
+                # MFCC (optional)
+                mel_spectrogram = tf.tensordot(spectrogram, linear_to_mel_weight_matrix, 1)
+                log_mel_spectrogram = tf.math.log(mel_spectrogram + 1.e-6)
+                mfccs = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrogram)
+                mfccs = mfccs[..., :num_coefficients]
+                mfccs = tf.reshape(mfccs, [1, num_frames, num_coefficients, 1])
+                input_tensor = mfccs
+
+            if model is not None:
+                interpreter.set_tensor(input_details[0]['index'], input_tensor)
+                start_inf = time.time()
+                interpreter.invoke()
+                output_data = interpreter.get_tensor(output_details[0]['index'])
+
+            end = time.time()
+            tot_latency.append(end - start)
+
+            if model is None:
+                start_inf = end
+
+            inf_latency.append(end - start_inf)
+            time.sleep(0.1)
+
+        print('Inference Latency {:.2f}ms'.format(np.mean(inf_latency)*1000.))
+        print('Total Latency {:.2f}ms'.format(np.mean(tot_latency)*1000.))
+        inf = np.mean(inf_latency)*1000.
+        tot = np.mean(tot_latency)*1000.
+        return inf, tot
     
     
     
