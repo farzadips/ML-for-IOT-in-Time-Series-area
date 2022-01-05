@@ -136,7 +136,7 @@ class make_models():
     def __init__(self):
         pass
 
-    def models(self,alpha, strides, units, model_version, mfcc, mymodel, magnitude = False, train_ds = None):
+    def models(self,alpha, strides, units, model_version, mfcc, mymodel):
         mlp = tf.keras.Sequential([
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(units = int(256 *alpha), activation='relu' , name =  "Dense-1" ),
@@ -188,25 +188,15 @@ class make_models():
 
         else:
             checkpoint_filepath = f'./checkpoints/mfcc/chkp_best_{mymodel}'
-        if not magnitude:
-            model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=checkpoint_filepath,           
-                monitor='val_sparse_categorical_accuracy',
-                verbose=1,
-                mode='max',
-                save_best_only=True,
-                save_freq='epoch')
-        else:
-            pruning_params = {'pruning_schedule':
-            tfmot.sparsity.keras.PolynomialDecay(
-            initial_sparsity=0.30,
-            final_sparsity=0.8,
-            begin_step=len(train_ds)*5,
-            end_step=len(train_ds)*15)
-            }
-            prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-            model = prune_low_magnitude(model, **pruning_params)
-            model_checkpoint_callback = tfmot.sparsity.keras.UpdatePruningStep()
+        
+        model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath=checkpoint_filepath,           
+            monitor='val_sparse_categorical_accuracy',
+            verbose=1,
+            mode='max',
+            save_best_only=True,
+            save_freq='epoch')
+
         return model, model_checkpoint_callback, checkpoint_filepath
 
     def plot_loss(slef, history, mymodel):
