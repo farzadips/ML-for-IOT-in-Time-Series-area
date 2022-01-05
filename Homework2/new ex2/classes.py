@@ -303,7 +303,7 @@ class model_analysis():
         # Apply weight + Activation  quantization 
         if WAPQT == True :
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.representative_dataset = self.representative_dataset_gen()
+            converter.representative_dataset = self.representative_dataset_gen
             tflite_model = converter.convert()
         
             tflite_model_dir = f"WAPQT_{tflite_model_dir}"
