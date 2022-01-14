@@ -1,24 +1,48 @@
 import argparse
+from sqlite3 import Timestamp
 import requests
+import base64
+import json
+import wave
+import datetime
 import time
 
+url = 'http://localhost:8080'
 
-parser = argparse.ArgumentParser()
-parser.add_argument('d', nargs=1, type=float)
-parser.add_argument('f', nargs=1, type=float)
-args = parser.parse_args()
-
-d = args.d[0]
-f = args.f[0]
-t = 25
-h = 68
-for i in range(int(d/f)):
-    url = 'http://localhost:8080/?t={}&h={}'.format(t,h)
+for i in range(3):
     r = requests.get(url)
+
     if r.status_code == 200:
-        print('sent')
+        body = r.json()
+    
+        timestamp = body['bt']
+        events = body['e']
+        for event in events:
+            if event['n'] == 'temperature':
+                temperature = event['v']
+                t_unit = event['u']
+            elif event['n'] == 'humidity':
+                humidity = event['v']
+                h_unit = event['u']
+            elif event['n'] == 'audio':
+                audio_string = event['vd'] 
+        date = datetime.datetime.fromtimestamp(timestamp)
+        audio_bytes = base64.b64decode(audio_string)
+
+        print('{:02}/{:02}/{:04} {:02}:{:02}:{:02} {}{} {}{}'.format(
+            date.day , date.month,date.year, date.hour ,date.minute,date.second,
+            temperature,t_unit,humidity,h_unit
+        ))
+
+        wav_output_filename = "{}.wav".format(timestamp)
+        wavefile = wave.open(wav_output_filename,'wb')
+        wavefile.setnchannels(1)
+        wavefile.setsampwidth(2)
+        wavefile.setframerate(48000)
+        wavefile.close()
     else:
-        print("error:",  r.status_code)
-    h+=1
-    t+=1
-    time.sleep(f)
+        print('Error: ', r.status_code)
+        break
+
+    time.sleep(30)
+    
