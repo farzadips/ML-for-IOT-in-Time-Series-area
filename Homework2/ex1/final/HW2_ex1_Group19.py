@@ -38,7 +38,7 @@ mean = train_data.mean(axis=0)
 std = train_data.std(axis=0)
 
 print (mean.shape)
-
+version = args.version
 input_width = 6
 if args.version == "a" :                
     output_steps = 3
