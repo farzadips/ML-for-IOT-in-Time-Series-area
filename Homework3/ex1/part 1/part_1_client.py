@@ -12,7 +12,7 @@ import base64
 
 # command = args.command[0]
 # operands = args.operands
-name = "model.tflite"
+name = "cnn.tflite"
 
 
 fname = 'E:\Github\Machine-learning-for-IOT\Lab3\MLP.tflite'

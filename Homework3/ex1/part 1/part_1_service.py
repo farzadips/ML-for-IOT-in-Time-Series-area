@@ -3,6 +3,8 @@ import json
 from functools import reduce
 import base64
 
+from more_itertools import only
+
 
 class Calculator(object):
     exposed = True
@@ -10,8 +12,20 @@ class Calculator(object):
     def GET(self, *path, **query):
         from os import listdir
         from os.path import isfile, join
+
         onlyfiles = [f for f in listdir('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models') if isfile(join('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models', f))]
-        return onlyfiles
+        print(onlyfiles)
+        output = {'path': onlyfiles}
+        output_json = json.dumps(output)
+
+        #return onlyfiles
+        return output_json
+
+
+
+
+
+
     def POST(self, *path, **query):
         pass
 
