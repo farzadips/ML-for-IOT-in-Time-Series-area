@@ -4,6 +4,7 @@ from functools import reduce
 import base64
 
 from more_itertools import only
+from tenacity import retry
 
 
 class Calculator(object):
@@ -12,14 +13,15 @@ class Calculator(object):
     def GET(self, *path, **query):
         from os import listdir
         from os.path import isfile, join
+        print(str(path[0]) )
+        if path[0] == 'list':
+            onlyfiles = [f for f in listdir('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models') if isfile(join('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models', f))]
+            print(onlyfiles)
+            output = {'path': onlyfiles}
+            output_json = json.dumps(output)
 
-        onlyfiles = [f for f in listdir('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models') if isfile(join('E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 1\models', f))]
-        print(onlyfiles)
-        output = {'path': onlyfiles}
-        output_json = json.dumps(output)
-
-        #return onlyfiles
-        return output_json
+            #return onlyfiles
+            return output_json
 
 
 
@@ -31,31 +33,34 @@ class Calculator(object):
 
     def PUT(self, *path, **query):
         print("recieved")
-        if len(path) > 0:
+        if len(path) < 0:
             raise cherrypy.HTTPError(400, 'Wrong path')
 
         if len(query) > 0:
             raise cherrypy.HTTPError(400, 'Wrong query')
+        
+        if(path[0] == "add"):
 
-        body = cherrypy.request.body.read()
-        body = json.loads(body)
+            body = cherrypy.request.body.read()
+            body = json.loads(body)
 
-        name = body['mn']
-        events = body['e']
-        for event in events:
-                model_string = event['vd'] 
-        model_bytes = base64.b64decode(model_string)
+            name = body['mn']
+            events = body['e']
+            for event in events:
+                    model_string = event['vd'] 
+            model_bytes = base64.b64decode(model_string)
 
 
-        tflite_model_dir = "E:/Github/Machine-learning-for-IOT/Homework3/ex1/part 1/models/" + name
-        with open(tflite_model_dir, 'wb') as fp:
-            fp.write(model_bytes)
-        output = {
-                    'result': "done",
-                }
-        output_json = json.dumps(output)
-        return output_json
-
+            tflite_model_dir = "E:/Github/Machine-learning-for-IOT/Homework3/ex1/part 1/models/" + name
+            with open(tflite_model_dir, 'wb') as fp:
+                fp.write(model_bytes)
+            output = {
+                        'result': "done",
+                    }
+            output_json = json.dumps(output)
+            return output_json
+        if path[0] == 'predict':
+            return
     def DELETE(self, *path, **query):
         pass
 

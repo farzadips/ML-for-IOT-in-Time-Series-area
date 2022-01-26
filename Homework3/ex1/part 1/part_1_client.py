@@ -12,7 +12,7 @@ import base64
 
 # command = args.command[0]
 # operands = args.operands
-name = "cnn.tflite"
+name = "t2t.tflite"
 
 
 fname = 'E:\Github\Machine-learning-for-IOT\Lab3\MLP.tflite'
@@ -22,7 +22,7 @@ interpreter_encode =  base64.b64encode(cnn_bytes)
 interpreter_string = interpreter_encode.decode()
 
 
-url = 'http://localhost:8080'
+url = 'http://localhost:8080/add'
 body = {
                     "mn": name,
                     "e": [
