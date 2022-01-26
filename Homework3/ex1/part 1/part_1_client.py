@@ -12,10 +12,10 @@ import base64
 
 # command = args.command[0]
 # operands = args.operands
-name = "t2t.tflite"
+name = "mlp.tflite"
 
 
-fname = 'E:\Github\Machine-learning-for-IOT\Lab3\MLP.tflite'
+fname = "E:\Github\Machine-learning-for-IOT\Homework3\ex1\part 3\mlp.tflite"
 cnn_bytes = bytearray (open(fname,'rb').read())
 
 interpreter_encode =  base64.b64encode(cnn_bytes)
