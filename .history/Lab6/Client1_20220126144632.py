@@ -42,23 +42,34 @@ if __name__=="__main__":
 	
 	twenty=True
 	while True:
-		# GET DATE AND TIME
+	# GET DATE AND TIME
 		now= datetime.now()
 		timestamp = int(now.timestamp())
-		temperature = []
-		humidity = []
-		for in in range(6):
+		if twenty is False:
+			twenty = True
+		elif twenty is True:
+			twenty = False
 			#humidity = dht_device.humidity
-			humidity.append(random.randrange(30,50))
-			temperature.append(random.randrange(0,25))
+			humidity = random.randrange(30,50)
 			# PACK INFO INTO A JSON
-		temp_hum_senML_json={
-					"bn": "raspberrypi.local",
-					"bt": timestamp,
-					"e": [{"n": "temperature", "u": "Cel", "t": 0, "v": temperature},{"n": "humidity", "u": "Cel", "t": 0, "v": humidity}]}
+			humidity_senML_json={
+                    "bn": "raspberrypi.local",
+                    "bt": timestamp,
+                    "e": [{"n": "humidity", "u": "%RH", "t": 0, "v": humidity}]}
+			humidity_senML_json = json.dumps(humidity_senML_json)
 			# SEND INFO THROUGH MQTT
-		client_1.myMqttClient.myPublish("/287787/weather/temp_hum",json.dumps(temp_hum_senML_json))
-		time.sleep(60)
+			client_1.myMqttClient.myPublish("/287787/weather/humidity",humidity_senML_json)
+
+		#temperature = dht_device.temperature
+		temperature = random.randrange(0,25)
+		# PACK INFO INTO A JSON
+		temperature_senML_json={
+                    "bn": "raspberrypi.local",
+                    "bt": timestamp,
+                    "e": [{"n": "temperature", "u": "Cel", "t": 0, "v": temperature}]}
+		# SEND INFO THROUGH MQTT
+		client_1.myMqttClient.myPublish("/287787/weather/temperature",json.dumps(temperature_senML_json))
+		time.sleep(10)
 
 while True:
 		time.sleep(1)

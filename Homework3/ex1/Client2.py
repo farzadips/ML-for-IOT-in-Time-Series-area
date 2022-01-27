@@ -14,29 +14,19 @@ class Subsciber(DoSomething):
 		input_json = json.loads(msg)
 		#print(input_json)
 		timestamp = input_json['bt']
-		events = input_json['e']
+		events = input_json['e'][0]
 		now = dt.fromtimestamp(float(timestamp))
 		datetime_str = now.strftime('%d-%m-%y %H:%M:%S')
-		
-		temperature = events[0]['v']
-		t_unit = events[0]['u']
-		humidity = events[1]['v']
-		h_unit = events[1]['u']
+		if events['n'] == 'temperature':
+			temperature = events['v']
+			t_unit = events['u']
 			
-
+			print(f'The topic is: {topic}, date:{datetime_str}, temperature:{temperature}')
+		elif events['n'] == 'humidity':
+			humidity = events['v']
+			h_unit = events['u']
+			print(f'The topic is: {topic}, date:{datetime_str}, humidity:{humidity}')
 			
-		model_path = 'E:/Github/Machine-learning-for-IOT/Homework3/ex1/part 1/models/' + model_name
-		interpreter = tf.lite.Interpreter(model_path)
-		interpreter.allocate_tensors()
-		input_details = interpreter.get_input_details()
-		output_details = interpreter.get_output_details()
-		input_shape = input_details[0]['shape']
-		first = True
-		window = np.zeros([1, 6, 2], dtype=np.float32)
-		expected = np.zeros(2, dtype=np.float32)
-		MEAN = np.array([9.107597, 75.904076], dtype=np.float32)
-		STD = np.array([ 8.654227, 16.557089], dtype=np.float32)
-		
         	
 		
 if __name__ == "__main__":

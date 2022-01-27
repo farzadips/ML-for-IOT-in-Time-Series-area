@@ -50,6 +50,13 @@ if __name__=="__main__":
 		for in in range(6):
 			#humidity = dht_device.humidity
 			humidity.append(random.randrange(30,50))
+			# PACK INFO INTO A JSON
+
+			humidity_senML_json = json.dumps(humidity_senML_json)
+			# SEND INFO THROUGH MQTT
+			client_1.myMqttClient.myPublish("/287787/weather/humidity",humidity_senML_json)
+
+			#temperature = dht_device.
 			temperature.append(random.randrange(0,25))
 			# PACK INFO INTO A JSON
 		temp_hum_senML_json={
