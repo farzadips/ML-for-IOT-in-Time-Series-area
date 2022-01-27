@@ -16,9 +16,10 @@ if __name__ == "__main__":
     # available for 10 minutes
 
         body = {
-                'model_name': 'cnn',
-                'tth' : 0.2,
-                'hth' : 0.1
+				"bn": "http://192.168.1.9/",
+                "model_name": "cnn",
+                "tth" : 0.2,
+                "hth" : 0.1
         }
         body_json = json.dumps(body)
         test.myMqttClient.myPublish("/1362341525/tt", body_json)

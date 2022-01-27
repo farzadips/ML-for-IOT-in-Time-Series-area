@@ -12,8 +12,6 @@ class Subscriber(DoSomething):
     def notify(self, topic, msg):
 
         input_json = json.loads(msg)
-        for event in input_json['e']:
-            print(event['v'])
 
 
 if __name__ == "__main__":
