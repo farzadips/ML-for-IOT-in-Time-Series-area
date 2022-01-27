@@ -58,7 +58,7 @@ class Subscriber_and_publish(DoSomething):
                         if(abs(predicted[0][0][0]-expected[0])>tt):
                             error_temp =  '(' + str(datetime_str) + ')' +'  Temperature Alert: Predicted=' + str(predicted[0][0][0]) + '°C Actual=' + str(expected[0]) + '°C'
                             
-                            error_temp = {"n": "temperature", "u":"/", "t":0, "v":error_temp} 
+                            error_temp = {"n": "temperature", "u":"/", "t":0, "v":error_text} 
                             
                             body = {
                                     "e": error_temp
@@ -69,9 +69,9 @@ class Subscriber_and_publish(DoSomething):
                             test2.myMqttClient.myPublish("/1352341525/alerts", body_json)
                             #return output_json
                         if(abs(predicted[0][0][1]-expected[1])>th):
-                            error_humd = '(' + str(datetime_str) + ')' + '  Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
+                            error_text = '(' + str(datetime_str) + ')' + '  Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
                             
-                            error_humd = {"n": "humidity", "u":"/", "t":0, "v":error_humd}
+                            error_humd = {"n": "humidity", "u":"/", "t":0, "v":error_text}
                             body = {
                                     "e": error_humd
                             }
