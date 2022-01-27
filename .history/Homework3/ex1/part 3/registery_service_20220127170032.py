@@ -56,11 +56,12 @@ class Subscriber_and_publish(DoSomething):
                         predicted = interpreter.get_tensor(output_details[0]['index'])
                         temp_hum_set = temp_hum_set[1:]
                         if(abs(predicted[0][0][0]-expected[0])>tt):
-                            error_temp =  '(' + str(datetime_str) + ')' +'  Temperature Alert: Predicted=' + str(predicted[0][0][0]) + '°C Actual=' + str(expected[0]) + '°C'
+                            error_temp = 'Temperature Alert: Predicted=' + str(predicted[0][0][0]) + '°C Actual=' + str(expected[0]) + '°C'
                             
-                            error_temp = {"n": "temperature", "u":"/", "t":0, "v":error_temp} 
+                            error_temp = {"n": "temperature", "u":"C", "t":0, "v":error_text} 
                             
                             body = {
+                                    "t" : datetime_str,
                                     "e": error_temp
                             }
                             body_json = json.dumps(body)
@@ -69,10 +70,11 @@ class Subscriber_and_publish(DoSomething):
                             test2.myMqttClient.myPublish("/1352341525/alerts", body_json)
                             #return output_json
                         if(abs(predicted[0][0][1]-expected[1])>th):
-                            error_humd = '(' + str(datetime_str) + ')' + '  Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
+                            error_text = '(' + str(datetime_str) + ')' + '  Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
                             
-                            error_humd = {"n": "humidity", "u":"/", "t":0, "v":error_humd}
+                            error_humd = {"n": "humidity", "u":"RH", "t":0, "v":error_text}
                             body = {
+                                    "t" : datetime_str,
                                     "e": error_humd
                             }
                             body_json = json.dumps(body)

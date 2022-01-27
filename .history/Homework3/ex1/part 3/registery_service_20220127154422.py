@@ -40,46 +40,51 @@ class Subscriber_and_publish(DoSomething):
             
             if(temp_hum_set.shape[0]>6):
                 print("predicting")
-                datetime_str = str(now.strftime('%d-%m-%y %H:%M:%S'))
                 for i in range(7):
+                    
                     temperature = temp_hum_set[i][0]
                     humidity = temp_hum_set[i][1]
                     if i < 6:
                         window[0, i, 0] = np.float32(temperature)
                         window[0, i, 1] = np.float32(humidity)
                     if i == 6:
+                        error_temp = {}
+                        error_humd = {}
                         expected[0] = np.float32(temperature)
                         expected[1] = np.float32(humidity)
+
                         window = (window - MEAN) / STD
                         interpreter.set_tensor(input_details[0]['index'], window)
                         interpreter.invoke()
                         predicted = interpreter.get_tensor(output_details[0]['index'])
                         temp_hum_set = temp_hum_set[1:]
                         if(abs(predicted[0][0][0]-expected[0])>tt):
-                            error_temp =  '(' + str(datetime_str) + ')' +'  Temperature Alert: Predicted=' + str(predicted[0][0][0]) + '°C Actual=' + str(expected[0]) + '°C'
-                            
-                            error_temp = {"n": "temperature", "u":"/", "t":0, "v":error_temp} 
-                            
-                            body = {
-                                    "e": error_temp
-                            }
-                            body_json = json.dumps(body)
-                            
-                            print("Alert published for Temperature")
-                            test2.myMqttClient.myPublish("/1352341525/alerts", body_json)
+                            error_temp = 'Temperature Alert: Predicted=' + str(predicted[0][0][0]) + '°C Actual=' + str(expected[0]) + '°C'
+                            output = {
+                                        'result': error_text,
+                                    }
+                            error_temp = {"n": "temperature", "u":"C", "t":0, "v":error_text} 
+                            output_json = json.dumps(output)
+                            print(error_text)
                             #return output_json
                         if(abs(predicted[0][0][1]-expected[1])>th):
-                            error_humd = '(' + str(datetime_str) + ')' + '  Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
-                            
-                            error_humd = {"n": "humidity", "u":"/", "t":0, "v":error_humd}
+                            error_text = 'Humidity Alert: Predicted=' + str(predicted[0][0][1]) + '% Actual=' + str(expected[1]) + '%'
+                            output = {
+                                        'result': error_text,
+                                    }
+                            output_json = json.dumps(output)
+                            error_humd = {"n": "humidity", "u":"RH", "t":0, "v":error_text}
+                            events = []
+                        event.append(error_temp)
+                        event.append(error_humd)
                             body = {
-                                    "e": error_humd
+                                    "bn": "http://192.168.1.9/",
+                                    "e": event
                             }
+                                
                             body_json = json.dumps(body)
-                            print("Alert published for Humidity")
                             test2.myMqttClient.myPublish("/1352341525/alerts", body_json)
-
-                          
+                            print("Alert published")
 
         print("\n")
 
