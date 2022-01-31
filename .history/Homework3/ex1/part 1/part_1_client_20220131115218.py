@@ -2,13 +2,7 @@ import argparse
 import requests
 import tensorflow as tf
 import base64
-from DoSomething import DoSomething
-import time
-import json
-from datetime import datetime
 
-from board import D4
-import adafruit_dht
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-path', nargs=1, type=str)
