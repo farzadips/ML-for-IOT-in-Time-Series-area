@@ -2,13 +2,7 @@ import argparse
 import requests
 import tensorflow as tf
 import base64
-from DoSomething import DoSomething
-import time
-import json
-from datetime import datetime
 
-from board import D4
-import adafruit_dht
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-path', nargs=1, type=str)
@@ -57,21 +51,3 @@ if(args.path[0]=='list'):
     else:
         print('Error:', r.status_code)
 if(args.path[0] == 'predict'):
-    test = DoSomething("publisher 1")
-    test.run()
-
-    dht_device = adafruit_dht.DHT11(D4)
-
-
-        body = {
-                'model_name': 'cnn',
-                'tth' : 0.1,
-                'hth' : 0.2
-        }
-        body_json = json.dumps(body)
-        test.myMqttClient.myPublish("/1362341525/tt", body_json)
-
-        print("\n")
-
-    test.end()
-

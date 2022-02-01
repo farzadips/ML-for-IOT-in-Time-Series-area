@@ -1,77 +1,151 @@
 import argparse
+
 import requests
+
 import tensorflow as tf
+
 import base64
+
 from DoSomething import DoSomething
+
 import time
+
 import json
+
 from datetime import datetime
 
-from board import D4
-import adafruit_dht
+
+
+
+
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument('-path', nargs=1, type=str)
+parser.add_argument('-name', nargs=1, type=str,required=False)
 args = parser.parse_args()
+
+
+
 if(args.path[0]=='add'):
-    parser.add_argument('-name', nargs=1, type=str)
-    args = parser.parse_args()
+
+
+
+
+
 
 
     name = args.name[0]
+
     # operands = args.operands
+
     name = str(name) + ".tflite"
 
 
-    fname = 'E:/Github/Machine-learning-for-IOT/Homework3/ex1/part 3/' + name
+
+
+
+    fname = './' + name
+
+
 
     cnn_bytes = bytearray (open(fname,'rb').read())
 
+
+
     interpreter_encode =  base64.b64encode(cnn_bytes)
+
     interpreter_string = interpreter_encode.decode()
 
 
+
+
+
     url = 'http://localhost:8080/add'
+
     body = {
+
                         "mn": name,
+
                         "e": [
+
                             {"n": "model", "u": "/", "t": 0, "vd": interpreter_string}
+
                         ],
+
             }
 
+
+
     r = requests.put(url, json=body)
+
     if r.status_code == 200:
+
         print("done")
+
     else:
+
         print('Error:', r.status_code)
 
+
+
 if(args.path[0]=='list'):
+
     url = 'http://localhost:8080/list'
+
+
 
     r = requests.get(url)
 
 
+
+
+
     if r.status_code == 200:
+
         body = r.json()
+
         print(body)
+
     else:
+
         print('Error:', r.status_code)
+
 if(args.path[0] == 'predict'):
-    test = DoSomething("publisher 1")
+
+    test = DoSomething("publisher 7")
+
     test.run()
 
-    dht_device = adafruit_dht.DHT11(D4)
 
 
-        body = {
-                'model_name': 'cnn',
-                'tth' : 0.1,
-                'hth' : 0.2
-        }
-        body_json = json.dumps(body)
-        test.myMqttClient.myPublish("/1362341525/tt", body_json)
+    #dht_device = adafruit_dht.DHT11(D4)
 
-        print("\n")
+
+
+    temp_tr = {"n": "temperature", "u":"/", "t":0, "v":0.1}
+    hum_tr = {"n": "humidity", "u":"RH", "/":0, "v":0.2}
+    threshes = []
+    threshes.append(temp_tr)
+    threshes.append(hum_tr)
+    body = {
+
+            'model_name':args.name[0],
+            "e": threshes
+
+    }
+
+    body_json = json.dumps(body)
+
+    test.myMqttClient.myPublish("/1362341525/tt", body_json)
+
+
+
+    print("\n")
+
+
 
     test.end()
+
+
 
