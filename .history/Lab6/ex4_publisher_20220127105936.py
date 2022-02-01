@@ -27,7 +27,8 @@ if __name__ == "__main__":
             time.sleep(10) # one recording every 10 seconds
 
 
-        datetime_str = str(
+        datetime_str = str(now.strftime('%d-%m-%y %H:%M:%S'))
+        
         body = {
 				"bn": "http://192.168.1.9/",
 				"bt": datetime_str,
