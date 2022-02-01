@@ -64,7 +64,7 @@ if(args.path[0]=='add'):
 
 
 
-    url = 'http://192.168.184.132/add'
+    url = 'http://localhost:8080/add'
 
     body = {
 
@@ -94,7 +94,7 @@ if(args.path[0]=='add'):
 
 if(args.path[0]=='list'):
 
-    url = 'http://192.168.184.132/list'
+    url = 'http://localhost:8080/list'
 
 
 

@@ -16,9 +16,6 @@ from datetime import datetime
 
 
 
-from board import D4
-
-import adafruit_dht
 
 
 
@@ -64,7 +61,7 @@ if(args.path[0]=='add'):
 
 
 
-    url = 'http://192.168.184.132/add'
+    url = 'http://192.168.184.132:8080/add'
 
     body = {
 
@@ -94,7 +91,7 @@ if(args.path[0]=='add'):
 
 if(args.path[0]=='list'):
 
-    url = 'http://192.168.184.132/list'
+    url = 'http://192.168.184.132:8080/list'
 
 
 
@@ -126,15 +123,15 @@ if(args.path[0] == 'predict'):
 
 
 
-
-
+    temp_tr = {"n": "temperature", "u":"/", "t":0, "v":0.1}
+    hum_tr = {"n": "humidity", "u":"RH", "/":0, "v":0.2}
+    threshes = []
+    threshes.append(temp_tr)
+    threshes.append(hum_tr)
     body = {
 
-            'model_name': name = args.name[0],
-
-            'tth' : 0.1,
-
-            'hth' : 0.2
+            'model_name':args.name[0],
+            "e": threshes
 
     }
 
